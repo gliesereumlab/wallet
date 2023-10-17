@@ -86,16 +86,18 @@ function createChecksum(bytes: Buffer): Buffer {
  * It uses ECDSA's recover method with the provided signature and data.
  */
 
+let hexToDecimal = (x: string) => EC.keyFromPrivate(x, "hex").getPrivate().toString(10);
+
 function recover(data: string, sig: ec.Signature): string {
-    try {
-        if (typeof sig.recoveryParam === "number") {
-            const recovered = EC.recoverPubKey(data, sig, sig.recoveryParam, "hex");  // Recover the public key
-            return recovered.encodeCompressed("hex");
-        }
-    } catch (error) {
-        console.error("Failed to recover the public key:", error);
+  try {
+    if (typeof sig.recoveryParam === "number") {
+      const recovered = EC.recoverPubKey(hexToDecimal(data), sig, sig.recoveryParam, "hex");
+      return recovered.encodeCompressed("hex");
     }
-    return "invalid";  // Default return value in case of failure
+  } catch (error) {
+    console.error("Failed to recover the public key:", error);
+  }
+  return "invalid";  // Default return value in case of failure
 }
 
 /**
